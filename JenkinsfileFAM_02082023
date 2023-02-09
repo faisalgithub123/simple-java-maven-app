@@ -25,7 +25,20 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
 
             } // post ends
 
-        } // end stage
+        }  // stage 1 ends
+        
+
+        // ---=======================--- cd part  added this later ---================================-
+        stage('Upload') {           // this Cd part has to be deployed to anaother Vm or docker/kubertnests, or ebs, eks  etc
+            steps {
+                sh "echo jfrog commands go here"
+            }
+        }
+        // =======================================================================================
+
+
+
+
 
         stage('Report') {
             steps {
@@ -39,6 +52,28 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
                 }  /// got this publish from pipeline syntax
             }   
         }  //stage 2 ends
+
+       stage('Sonar Analysis') {
+            steps {
+                sh "echo 'mvn sonar:sonar'"
+            }
+        }// stage 3 (sonar) ends
+
+        
+        stage('Static Analysis') {
+            steps {
+                echo "hp fortity, AquaSec, Coverity, Sonarscan" //  to make srue that compnay is not using NON LIcenses to avoid sue
+            }
+
+        }
+        stage('Deploy to Dev') {
+            steps {
+                sshagent(['project-a-dev-ssh-key']) {  //// follow notes  cd part  step 3
+                    sh "scp -o StrictHostKeyChecking=no target/my-app-1.0-SNAPSHOT.jar ec2-user@172.31.2.127:/tmp"  // .jar is the soruce you get from  build console output. And target is the tgt VM priate ip
+                }                       // for adding parameter,  G  ssh ignore host key.  you get -o and add it as a param
+            }
+        }
+
    
     }// all stages end
 
@@ -50,3 +85,5 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
 // . we are using master node to run jenkins and using agent 0 node to run maven test only...
 
 // testing webhook...
+
+// adding CD part....
