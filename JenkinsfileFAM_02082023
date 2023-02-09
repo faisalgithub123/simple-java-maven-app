@@ -42,8 +42,8 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
 
         stage('Report') {
             steps {
-                sh "mvn clean test surefire-report:report-only"
-            }
+                sh "mvn clean package surefire-report:report-only"  // before it was test.. but form maeven life cycele we are going till pacakge because mvn clean package is defined up.
+            }                                                           // keep it consistenct  life cyuilce till pacakge  above and here
 
             post {
                 success {
