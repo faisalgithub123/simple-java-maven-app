@@ -63,7 +63,7 @@ pipeline {        // CP to vim JenkinsfileFAM and git push
             steps {
                 "hp fortity, AquaSec, Coverity, Sonarscan" //  to make srue that compnay is not using NON LIcenses to avoid sue
             }
-
+        }
         stage('Deploy to Dev') {
             steps {
                 sshagent(['project-a-dev-ssh-key']) {  //// follow notes  cd part  step 3
@@ -72,7 +72,7 @@ pipeline {        // CP to vim JenkinsfileFAM and git push
             }
         }
 
-        }
+        
 
 
 
