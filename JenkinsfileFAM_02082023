@@ -1,47 +1,83 @@
-pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into git and commit 
-    agent  {
+pipeline {        // CP to vim JenkinsfileFAM and git push
+    agent {
         label 'maven'   // previosly it was agent  any
     }                   
     tools {
-        maven 'maven-latest-3.9.0'
+        maven 'maven-latest'
     }
     stages {
-        stage('build') {                //not writing Git checkout lke in previous file because now we will write code and upon git Push it will trirrger
-            steps {                         // for build, we have maven, node, gradle, dotnet ng and npm are eg.   we use build tools to make sure that yhour code is properly complied and packaged (meaing putting in aproper format)
-                sh "mvn --version"  // eg. for sproingboot application, you need maven build tool.  for java app, you need node build tool.  for python, you need python build tool.  wwe suing sproingboot java, so we use maven here
-                sh "mvn clean package"   // G: maven life cycle.  Choose 'package'.  it will validate, compile, test and package.  MVN is the complusltory  command
+        stage('build') {
+            steps {
+                sh "mvn --version"
+                sh "mvn clean package"   // G: maven life cycle.  Choose 'package'.  it will validate, compile, test and package
             }
             
             post {
-                success {                               // complusory cmd
+                success {
                     echo "My build is successful"
                 }
-                failure {                                           // complusory cmd
+                failure {
                     echo "My Build is failed"
                 }
-                always {                                                                // complusory cmd
+                always {
                     echo "I am always"  // display this regardless success or failure
                 }
 
             } // post ends
 
-        } // end stage
+        }  // stage 1 ends
+        
+
+        // ---=======================--- cd part  added this later ---================================-
+        stage('Upload') {
+            steps {
+                sh "jfrog"
+            }
+        }
+        // =======================================================================================
+        
 
         stage('Report') {
             steps {
-                sh "mvn clean test surefire-report:report-only"
+                sh "mvn clean test surefire-report:report-only"   //   this is the command
             }
-
+            
             post {
                 success {
                     junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
                     publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'target/site', reportFiles: 'surefire-report.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                 }  /// got this publish from pipeline syntax
-            }   
-        }  //stage 2 ends
-   
-    }// all stages end
+            }                
+            
+        }  // stage 2 ends
 
+        
+        stage('Sonar Analysis') {
+            steps {
+                sh "mvn sonar:sonar"
+            }
+        }// stage 3 (sonar) ends
+
+        
+        stage('Static Analysis') {
+            steps {
+                "hp fortity, AquaSec, Coverity, Sonarscan" //  to make srue that compnay is not using NON LIcenses to avoid sue
+            }
+
+        stage('Deploy to Dev') {
+            steps {
+                sshagent(['project-a-dev-ssh-key']) {  //// follow notes  cd part  step 3
+                    sh "scp -o StrictHostKeyChecking=no target/my-app-1.0-SNAPSHOT.jar ec2-user@172.31.2.127:/tmp"  // .jar is the soruce you get from  build console output. And target is the tgt VM priate ip
+                }                       // for adding parameter,  G  ssh ignore host key.  you get -o and add it as a param
+            }
+        }
+
+        }
+
+
+
+    } // end all stage
+ 
 }// pipeline ends
 
 
@@ -49,4 +85,6 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
 // this is the update of the first jenkins file with  agent label maven (sanme name described in agent 0 node in jenkins)
 // . we are using master node to run jenkins and using agent 0 node to run maven test only...
 
-// testing webhook...aa
+// testing webhook...
+
+// adding CD part
