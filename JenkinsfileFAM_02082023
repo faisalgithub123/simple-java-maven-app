@@ -31,7 +31,7 @@ pipeline {        // CP to vim JenkinsfileFAM and git push.  or cp directly into
         // ---=======================--- cd part  added this later ---================================-
         stage('Upload') {           // this Cd part has to be deployed to anaother Vm or docker/kubertnests, or ebs, eks  etc
             steps {
-                sh "echo jfrog commands go here"
+                sh echo"jfrog commands go here"
             }
         }
         // =======================================================================================
